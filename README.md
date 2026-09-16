@@ -22,7 +22,7 @@ the tag, then use the next `-<n>`.
 ## Install on a host
 
 ```sh
-plakar pkg add -allow-unsigned ./s3_v1.0.7_linux_amd64.ptar
+plakar pkg add -allow-unsigned ./s3_v1.1.6_linux_amd64.ptar
 plakar pkg show
 ```
 
