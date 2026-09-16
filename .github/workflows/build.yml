@@ -45,6 +45,7 @@ jobs:
 
   test:
     needs: build
+    name: test (${{ matrix.image }})
     runs-on: ubuntu-latest
     container: ${{ matrix.image }}
     strategy:
