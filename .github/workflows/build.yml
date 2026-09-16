@@ -16,6 +16,7 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: stable
+          cache: false
 
       - name: Install plakar
         env:
@@ -32,7 +33,7 @@ jobs:
           grep -v '^\s*\(#\|$\)' plugins.txt | while read -r name; do
             plakar pkg build "$name"
           done
-          sha256sum *.ptar > SHA256SUMS
+          sha256sum -- *.ptar > SHA256SUMS
 
       - uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
