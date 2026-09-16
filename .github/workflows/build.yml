@@ -1,0 +1,41 @@
+name: build
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+
+      - name: Install plakar
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          VERSION=$(echo "$REF_NAME" | sed -n 's/^v\([0-9.]*\)-[0-9]*$/\1/p')
+          [ -n "$VERSION" ] || { echo "bad tag $REF_NAME, want v1.1.6-1" >&2; exit 1; }
+          curl -fsSL "https://plakar.io/dl/plakar_${VERSION}_linux_amd64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin plakar
+          plakar version
+
+      - name: Build the plugins
+        run: |
+          grep -v '^\s*\(#\|$\)' plugins.txt | while read -r name; do
+            plakar pkg build "$name"
+          done
+          sha256sum *.ptar > SHA256SUMS
+
+      - uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        with:
+          files: |
+            *.ptar
+            SHA256SUMS
