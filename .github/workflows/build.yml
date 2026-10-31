@@ -87,3 +87,30 @@ jobs:
           files: |
             *.ptar
             SHA256SUMS
+
+  image:
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: ptar
+          path: image
+
+      - name: Build and push the backup image
+        env:
+          V: ${{ needs.build.outputs.plakar }}
+          REF_NAME: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          image="ghcr.io/aforinnov/plakar-backup:${REF_NAME#v}"
+          docker build --build-arg PLAKAR_VERSION="$V" -t "$image" image
+          docker run --rm --entrypoint plakar "$image" pkg show
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$ACTOR" --password-stdin
+          docker push "$image"
