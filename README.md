@@ -31,3 +31,22 @@ plakar pkg show
 ## Add a plugin
 
 One integration name per line in `plugins.txt`, then a new tag.
+
+## Backup image
+
+Each release also pushes `ghcr.io/aforinnov/plakar-backup:<tag without v>`, for example
+`1.1.6-2`: Debian with plakar, these plugins, sqlite3 and `image/backup.sh`. A change to the
+image needs a new tag, like a plugin change.
+
+The container takes a snapshot once at start, then every day at `BACKUP_TIME` (UTC, default
+`01:30`), and deletes the snapshots older than `PLAKAR_KEEP` (default `90d`). Before each
+snapshot it empties `/staging` and runs `BACKUP_PREPARE`, the app-specific shell command that
+fills it. The store is encrypted with `PLAKAR_PASSPHRASE`.
+
+| Variable | Value |
+| --- | --- |
+| `STORE` | `s3://s3.eu-central-1.amazonaws.com/<bucket>/<app>/<env>/plakar` |
+| `BACKUP_S3_ACCESS_KEY`, `BACKUP_S3_SECRET_KEY` | the app's writer in `platform-backups` |
+| `PLAKAR_PASSPHRASE` | the passphrase in SSM; snapshots are unreadable without it |
+| `BACKUP_PREPARE` | for example `sqlite3 /data/db.sqlite3 "VACUUM INTO '/staging/db.sqlite3'"` |
+| `CRONITOR_API_KEY`, `CRONITOR_MONITOR` | optional; the telemetry key and the monitor to ping |
