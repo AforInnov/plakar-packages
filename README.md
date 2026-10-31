@@ -21,8 +21,12 @@ the tag, then use the next `-<n>`.
 
 ## Install on a host
 
+A plugin's version follows its integration, not plakar: release `v1.1.8-1` holds
+`s3_v1.1.10_linux_amd64.ptar`. Read the file names in the release's `SHA256SUMS`.
+
 ```sh
-plakar pkg add -allow-unsigned ./s3_v1.1.6_linux_amd64.ptar
+plakar pkg rm s3        # only to upgrade: pkg add refuses to replace an installed plugin
+plakar pkg add -allow-unsigned ./s3_v1.1.10_linux_amd64.ptar
 plakar pkg show
 ```
 
@@ -35,7 +39,7 @@ One integration name per line in `plugins.txt`, then a new tag.
 ## Backup image
 
 Each release also pushes `ghcr.io/aforinnov/plakar-backup:<tag without v>`, for example
-`1.1.6-2`: Debian with plakar, these plugins, sqlite3 and `image/backup.sh`. A change to the
+`1.1.8-1`: Debian with plakar, these plugins, sqlite3 and `image/backup.sh`. A change to the
 image needs a new tag, like a plugin change.
 
 The container takes a snapshot once at start, then every day at `BACKUP_TIME` (UTC, default
